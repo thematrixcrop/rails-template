@@ -1,0 +1,14 @@
+# Default flags for `rails new`. Comments are ignored.
+#
+#   rails new myapp --rc=/Users/bestony/Developer/rubyonrails/rails-template/.railsrc
+#
+# Optional: copy this file to ~/.railsrc so a plain `rails new myapp` applies
+# the template. Do not combine with bin/new (bin/new already passes --no-rc).
+--database=trilogy
+--css=bootstrap
+--javascript=importmap
+--skip-jbuilder
+--skip-action-mailbox
+--skip-kamal
+--skip-test
+-m /Users/bestony/Developer/rubyonrails/rails-template/template.rb

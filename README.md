@@ -64,9 +64,21 @@ A local checkout:
 rails new myapp -m /path/to/rails-template/template.rb
 ```
 
-### Default flags via `~/.railsrc`
+### `.railsrc`
 
-Copy [`.railsrc.example`](.railsrc.example) to `~/.railsrc` if you want a plain `rails new myapp` to apply the template. Do not combine `~/.railsrc` with `bin/new` (`bin/new` already passes `--no-rc`).
+This repository tracks [`.railsrc`](.railsrc) with the same flags `bin/new` passes (except `--no-rc`).
+
+```bash
+rails new myapp --rc=/Users/bestony/Developer/rubyonrails/rails-template/.railsrc
+```
+
+To make a plain `rails new myapp` apply the template:
+
+```bash
+cp /Users/bestony/Developer/rubyonrails/rails-template/.railsrc ~/.railsrc
+```
+
+Do not combine `~/.railsrc` with `bin/new` (`bin/new` already passes `--no-rc`).
 
 ## Optional modules
 

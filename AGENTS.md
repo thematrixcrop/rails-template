@@ -7,9 +7,10 @@ Ruby files and comments are English. The README is English.
 ## Layout
 
 - `template.rb` — entry. Clones this repo when loaded from a URL, then `apply` recipes.
+- `.railsrc` — default `rails new` flags. Pass `--rc=/path/to/.railsrc`, or copy to `~/.railsrc`.
 - `recipes/` — one concern per file. `after_bundle.rb` runs after `bundle install`.
 - `templates/` — files copied into the generated app (`copy_file` / `template`).
-- `bin/new` — installs the newest Rails gem, then runs `rails new` with this template.
+- `bin/new` — installs the newest Rails gem, then runs `rails new` with this template (`--no-rc`).
 - `script/test-generate` — generates a dummy app and asserts files (and `bin/rspec` when `RUN_APP_CI=1`).
 
 ## Commands
