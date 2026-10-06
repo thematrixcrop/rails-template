@@ -4,6 +4,22 @@ A Rails 8 application template for [`rails new`](https://guides.rubyonrails.org/
 
 Each new app is generated with the **newest Rails gem on Rubygems** and a fresh `Gemfile.lock`. This repository does not upgrade apps after they exist. Run `bundle update` and `bin/rails app:update` inside the app when you need newer gems.
 
+## Quick start
+
+```bash
+rails new myapp \
+  --database=trilogy \
+  --css=bootstrap \
+  --javascript=importmap \
+  --skip-jbuilder \
+  --skip-action-mailbox \
+  --skip-kamal \
+  --skip-test \
+  -m https://raw.githubusercontent.com/thematrixcrop/rails-template/main/template.rb
+```
+
+Needs a current `rails` gem (`gem install rails`) and Node.js (Bootstrap). Optional modules: prefix with `RAILS_TEMPLATE_WITH=administrate,caprover`.
+
 ## Stack
 
 | Layer | Choice |
@@ -40,26 +56,13 @@ bin/new ~/Developer/rubyonrails/myapp -- --skip-docker
 
 ### `rails new -m`
 
-```bash
-gem install rails
-rails new myapp \
-  --database=trilogy \
-  --css=bootstrap \
-  --javascript=importmap \
-  --skip-jbuilder \
-  --skip-action-mailbox \
-  --skip-kamal \
-  --skip-test \
-  -m https://raw.githubusercontent.com/thematrixcrop/rails-template/main/template.rb
-```
+The [Quick start](#quick-start) command is the copy-paste form. `template.rb` clones this repository when `-m` is the GitHub URL, so recipes and files load.
 
-A local checkout works the same way:
+A local checkout:
 
 ```bash
 rails new myapp -m /path/to/rails-template/template.rb
 ```
-
-When `-m` points at the GitHub URL, `template.rb` clones this repository so the recipes and files load.
 
 ### Default flags via `~/.railsrc`
 
