@@ -1,0 +1,5 @@
+# Defaults for non-interactive generation (CI, bin/new --with=...).
+# Optional modules stay off unless RAILS_TEMPLATE_WITH or bin/new --with lists them.
+modules:
+  administrate: false
+  caprover: false

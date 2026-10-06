@@ -1,0 +1,95 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+# Create a Rails app with this template and the newest Rails gem on Rubygems.
+#
+#   bin/new myapp
+#   bin/new myapp --with=administrate,caprover
+#   bin/new myapp --skip-latest-check
+#   bin/new myapp -- --skip-docker
+
+require "json"
+require "net/http"
+require "optparse"
+require "rubygems"
+
+TEMPLATE_ROOT = File.expand_path("..", __dir__)
+TEMPLATE_RB = File.join(TEMPLATE_ROOT, "template.rb")
+
+DEFAULT_RAILS_FLAGS = %w[
+  --database=trilogy
+  --css=bootstrap
+  --javascript=importmap
+  --skip-jbuilder
+  --skip-action-mailbox
+  --skip-kamal
+  --skip-test
+  --no-rc
+].freeze
+
+with_modules = []
+skip_latest_check = false
+
+parser = OptionParser.new do |opts|
+  opts.banner = "Usage: bin/new APP_PATH [options] [-- RAILS_NEW_FLAGS]"
+  opts.on("--with=MODULES", "Optional modules: administrate,caprover (comma-separated)") do |value|
+    with_modules.concat(value.split(",").map(&:strip).reject(&:empty?))
+  end
+  opts.on("--skip-latest-check", "Use the Rails gem already installed; do not query Rubygems") do
+    skip_latest_check = true
+  end
+  opts.on("-h", "--help", "Show this help") do
+    puts opts
+    exit
+  end
+end
+
+tokens = ARGV.dup
+passthrough = []
+if (separator = tokens.index("--"))
+  passthrough = tokens[(separator + 1)..]
+  tokens = tokens[0...separator]
+end
+
+rest = parser.parse!(tokens)
+app_path = rest.shift
+abort parser.help if app_path.nil? || app_path.empty?
+passthrough = rest + passthrough
+
+ENV["RAILS_TEMPLATE_WITH"] = with_modules.join(",") unless with_modules.empty?
+
+def latest_rails_version
+  uri = URI("https://rubygems.org/api/v1/gems/rails.json")
+  response = Net::HTTP.get_response(uri)
+  abort "Unable to read the latest Rails version from Rubygems (HTTP #{response.code})" unless response.is_a?(Net::HTTPSuccess)
+
+  JSON.parse(response.body).fetch("version")
+end
+
+def installed_rails_versions
+  Gem::Specification.find_all_by_name("rails").map { |spec| spec.version.to_s }
+end
+
+def gem_install_rails(version)
+  warn "Installing rails #{version}"
+  system("gem", "install", "rails", "-v", version, "--no-document") or abort "gem install rails -v #{version} failed"
+end
+
+rails_version = nil
+unless skip_latest_check
+  rails_version = latest_rails_version
+  installed = installed_rails_versions
+  gem_install_rails(rails_version) unless installed.include?(rails_version)
+end
+
+command = [ "rails" ]
+command << "_#{rails_version}_" if rails_version
+command += [ "new", app_path ]
+command += DEFAULT_RAILS_FLAGS
+command += passthrough
+unless passthrough.any? { |flag| flag == "-m" || flag.start_with?("--template") }
+  command += [ "-m", TEMPLATE_RB ]
+end
+
+warn command.join(" ")
+exec(*command)

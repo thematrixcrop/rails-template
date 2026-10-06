@@ -1,0 +1,34 @@
+# AGENTS.md
+
+<%= app_const_base %> is a Rails application generated from [thematrixcrop/rails-template](https://github.com/thematrixcrop/rails-template).
+
+Rails 8, Ruby from `.ruby-version`, trilogy (MySQL), Solid Cache / Solid Queue / Solid Cable, Bootstrap, Hotwire (`turbo-rails`, `stimulus-rails`), importmap, RSpec.
+
+## Layout
+
+- `app/lib/` holds `AppLog` and `AppConfig`.
+- `app/services/` holds business logic. Controllers stay thin.
+- `app/dashboards/` + `app/controllers/admin/` if Administrate is enabled (`/admin`).
+- Four databases: `primary`, `cache`, `queue`, `cable`. Solid schemas live in `db/*_schema.rb`.
+
+## Commands
+
+- `bin/setup` / `bin/rails db:prepare` — create and migrate all databases (MySQL `root`/`root` over `/tmp/mysql.sock` by default; set `DB_HOST` for TCP).
+- `bin/dev` — web + Solid Queue (in Puma when `SOLID_QUEUE_IN_PUMA` is set).
+- `bin/rspec` — specs. `bin/rubocop`, `bin/brakeman`, `bin/bundler-audit` — checks (lefthook and `bin/ci`).
+- `/jobs` — Mission Control (HTTP basic; see `.env.example`).
+
+## Rules
+
+- Comments: English, only when the reason is not obvious.
+- Logs through `AppLog.<level>(scope, event, **fields)`. Never log tokens, cookies, Authorization, full request bodies, or personal data.
+- User-facing copy goes through `t(...)`. `config/locales/en.yml` is the reference; add every new key to `zh-CN.yml` as well (`spec/i18n_spec.rb`).
+- Secrets for external services go in Rails credentials. Deployment settings (database, host) stay in ENV. A new ENV variable updates `.env.example` in the same commit.
+- Conventional Commits (`feat(jobs): retry failed webhooks`).
+- Lefthook runs RuboCop on staged Ruby at pre-commit; pre-push runs Brakeman and, when the Gemfile changes, bundler-audit. Skip a hook with `LEFTHOOK=0`.
+
+## Generators
+
+Prefer `bin/rails generate` for migrations, models, controllers, jobs, mailers, and mailer previews. Test framework is RSpec.
+
+This template does not manage upgrades of an existing app. Run `bundle update` and `bin/rails app:update` in this repository when you need newer gems.

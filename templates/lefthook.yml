@@ -1,0 +1,15 @@
+pre-commit:
+  parallel: true
+  commands:
+    rubocop:
+      glob: "*.{rb,rake}"
+      run: bin/rubocop -a --force-exclusion {staged_files}
+      stage_fixed: true
+
+pre-push:
+  commands:
+    brakeman:
+      run: bin/brakeman --quiet --no-pager --exit-on-warn --exit-on-error
+    bundler-audit:
+      glob: "{Gemfile,Gemfile.lock}"
+      run: bin/bundler-audit

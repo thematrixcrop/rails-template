@@ -1,0 +1,58 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+  schedule:
+    - cron: "0 6 * * 1"
+
+jobs:
+  syntax:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "4.0"
+          bundler-cache: false
+      - name: Syntax check
+        run: |
+          find . -name "*.rb" -not -path "./tmp/*" -print0 | xargs -0 -n1 ruby -c
+
+  generate:
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -proot"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+    env:
+      DB_HOST: 127.0.0.1
+      DB_PORT: "3306"
+      DB_USER: root
+      DB_PASSWORD: root
+      RUN_APP_CI: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "4.0"
+          bundler-cache: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Git identity for rails new
+        run: |
+          git config --global user.email "ci@thematrixcrop.com"
+          git config --global user.name "github-actions"
+      - name: Install Rails
+        run: gem install rails --no-document
+      - name: Generate app and run its checks
+        run: bash script/test-generate

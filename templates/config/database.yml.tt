@@ -1,0 +1,57 @@
+# Four databases per environment: business data (primary) is isolated from
+# Solid Cache, Solid Queue and Solid Cable. Test uses primary only.
+#
+# Adapter: trilogy (MySQL protocol).
+default: &default
+  adapter: trilogy
+  encoding: utf8mb4
+  collation: utf8mb4_0900_ai_ci
+  max_connections: <%%= ENV.fetch("RAILS_MAX_THREADS", 5).to_i %>
+  username: <%%= ENV.fetch("DB_USER", "root") %>
+  password: <%%= ENV.fetch("DB_PASSWORD", "root") %>
+<%% if ENV["DB_HOST"] %>
+  host: <%%= ENV["DB_HOST"] %>
+  port: <%%= ENV.fetch("DB_PORT", 3306) %>
+<%% else %>
+  socket: <%%= ENV.fetch("DB_SOCKET", "/tmp/mysql.sock") %>
+<%% end %>
+
+development:
+  primary:
+    <<: *default
+    database: <%= app_name %>_primary_development
+  cache:
+    <<: *default
+    database: <%= app_name %>_cache_development
+    migrations_paths: db/cache_migrate
+  queue:
+    <<: *default
+    database: <%= app_name %>_queue_development
+    migrations_paths: db/queue_migrate
+  cable:
+    <<: *default
+    database: <%= app_name %>_cable_development
+    migrations_paths: db/cable_migrate
+
+test:
+  <<: *default
+  database: <%= app_name %>_primary_test
+
+production:
+  primary: &primary_production
+    <<: *default
+    database: <%%= ENV.fetch("PRIMARY_DB_NAME", "<%= app_name %>_primary_production") %>
+    username: <%%= ENV.fetch("DB_USER", "<%= app_name %>") %>
+    password: <%%= ENV.fetch("DB_PASSWORD") { ENV["<%= app_name.upcase %>_DATABASE_PASSWORD"] } %>
+  cache:
+    <<: *primary_production
+    database: <%%= ENV.fetch("CACHE_DB_NAME", "<%= app_name %>_cache_production") %>
+    migrations_paths: db/cache_migrate
+  queue:
+    <<: *primary_production
+    database: <%%= ENV.fetch("QUEUE_DB_NAME", "<%= app_name %>_queue_production") %>
+    migrations_paths: db/queue_migrate
+  cable:
+    <<: *primary_production
+    database: <%%= ENV.fetch("CABLE_DB_NAME", "<%= app_name %>_cable_production") %>
+    migrations_paths: db/cable_migrate

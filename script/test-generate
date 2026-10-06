@@ -1,0 +1,64 @@
+#!/usr/bin/env bash
+# Generate a throwaway app with this template and assert the expected files.
+# Set RUN_APP_CI=1 (and MySQL env) to also run bin/setup + bin/rspec in the app.
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+TMP="${TMPDIR:-/tmp}/rails-template-test-$$"
+APP="$TMP/dummy"
+mkdir -p "$TMP"
+trap 'rm -rf "$TMP"' EXIT
+
+echo "== Generating $APP =="
+"$ROOT/bin/new" "$APP" --skip-latest-check
+
+assert_file() {
+  local path="$1"
+  if [[ ! -f "$APP/$path" ]]; then
+    echo "missing: $path" >&2
+    exit 1
+  fi
+}
+
+assert_grep() {
+  local path="$1"
+  local pattern="$2"
+  if ! grep -q "$pattern" "$APP/$path"; then
+    echo "missing pattern '$pattern' in $path" >&2
+    exit 1
+  fi
+}
+
+assert_file "spec/rails_helper.rb"
+assert_file "spec/i18n_spec.rb"
+assert_file "spec/lib/app_log_spec.rb"
+assert_file "lefthook.yml"
+assert_file "AGENTS.md"
+assert_file "app/lib/app_log.rb"
+assert_file "app/lib/app_config.rb"
+assert_file ".env.example"
+assert_file "config/locales/zh-CN.yml"
+assert_file "config/initializers/mission_control.rb"
+assert_file "bin/rspec"
+
+assert_grep "Gemfile" "rspec-rails"
+assert_grep "Gemfile" "rails-i18n"
+assert_grep "Gemfile" "mission_control-jobs"
+assert_grep "Gemfile" "trilogy"
+assert_grep "Gemfile" "turbo-rails"
+assert_grep "config/database.yml" "adapter: trilogy"
+assert_grep "config/environments/development.rb" "solid_queue"
+assert_grep "config/environments/development.rb" "solid_cache_store"
+assert_grep "config/routes.rb" "MissionControl::Jobs::Engine"
+assert_grep "config/application.rb" "zh-CN"
+assert_grep "spec/rails_helper.rb" "webmock/rspec"
+
+echo "== File assertions passed =="
+
+if [[ "${RUN_APP_CI:-}" == "1" ]]; then
+  echo "== Running generated app CI =="
+  cd "$APP"
+  bin/setup --skip-server
+  bin/rspec
+  bin/rubocop
+fi

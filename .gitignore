@@ -1,0 +1,6 @@
+/.gitlock
+/tmp/
+.DS_Store
+
+# Track this repository's AGENTS.md even when the global ignore lists the name.
+!AGENTS.md
