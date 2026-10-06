@@ -23,7 +23,9 @@ Rails 8, Ruby from `.ruby-version`, trilogy (MySQL), Solid Cache / Solid Queue /
 - Comments: English, only when the reason is not obvious.
 - Logs through `AppLog.<level>(scope, event, **fields)`. Never log tokens, cookies, Authorization, full request bodies, or personal data.
 - User-facing copy goes through `t(...)`. `config/locales/en.yml` is the reference; add every new key to `zh-CN.yml` as well (`spec/i18n_spec.rb`).
-- Secrets for external services go in Rails credentials. Deployment settings (database, host) stay in ENV. A new ENV variable updates `.env.example` in the same commit.
+- Two configuration stores. `.env` (dotenv, development and test) holds machine-specific and environment-specific values: database, `APP_HOST`, log level. `bin/setup` copies `.env.example` to `.env` when `.env` is missing. Production reads process ENV, not a file.
+- Env-independent secrets and shared config go in Rails credentials (`bin/rails credentials:edit`). Layout: `config/credentials.example.yml`. Read them with `AppConfig.credential(:group, :key)`.
+- A new ENV variable updates `.env.example` in the same commit. A new credential key updates `config/credentials.example.yml` in the same commit.
 - Conventional Commits (`feat(jobs): retry failed webhooks`).
 - Lefthook runs RuboCop on staged Ruby at pre-commit; pre-push runs Brakeman and, when the Gemfile changes, bundler-audit. Skip a hook with `LEFTHOOK=0`.
 

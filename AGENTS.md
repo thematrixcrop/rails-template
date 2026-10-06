@@ -27,5 +27,6 @@ Do not pin extra gems in recipes. New apps resolve the newest compatible version
 
 - Keep `template.rb` short. Put behaviour in recipes.
 - Recipe steps must be skippable when the file or snippet already exists (`file_contains?`, `gem_declared?`).
+- Generated apps use `.env` (dotenv) for local/environment-specific values and Rails credentials for env-independent secrets. Keep that split in recipes and docs.
 - Generated app comments, logs, identifiers, and commit messages are English. User-facing copy goes through `t(...)`.
 - Conventional Commits.

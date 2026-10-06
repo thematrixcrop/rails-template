@@ -117,6 +117,7 @@ warn_if_rails_stale!
 say "Applying #{REPO_SLUG} (modules: #{requested_modules.presence || 'core only'})", :green
 
 apply "recipes/core.rb"
+apply "recipes/dotenv.rb"
 apply "recipes/rspec.rb"
 apply "recipes/i18n.rb"
 apply "recipes/lefthook.rb"

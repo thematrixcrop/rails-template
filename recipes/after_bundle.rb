@@ -29,5 +29,11 @@ if File.exist?("spec/rails_helper.rb") && !file_contains?("spec/rails_helper.rb"
   end
 end
 
+if File.exist?(".env.example") && !File.exist?(".env")
+  require "fileutils"
+  FileUtils.cp ".env.example", ".env"
+  say "Copied .env.example to .env", :green
+end
+
 run "bundle binstubs rspec-core" unless File.exist?("bin/rspec")
 run "bundle exec lefthook install" if git_repo?

@@ -88,7 +88,24 @@ RAILS_TEMPLATE_WITH=administrate,caprover rails new myapp -m /path/to/template.r
 - RSpec, Capybara, WebMock (net connect off), `bin/rspec`, and an RSpec step in `bin/ci`.
 - `config/locales/en.yml` and `zh-CN.yml`, plus `spec/i18n_spec.rb`.
 - lefthook: RuboCop on pre-commit; Brakeman and bundler-audit on pre-push.
-- `.env.example`. Secrets stay in Rails credentials; host and database settings stay in ENV.
+- `.env` for local development (dotenv) and Rails credentials for env-independent config. See [Configuration](#configuration).
+
+## Configuration
+
+| Store | When it loads | What belongs there |
+| --- | --- | --- |
+| `.env` / `.env.local` | development and test, via [dotenv](https://github.com/bkeepers/dotenv) | Machine-specific and environment-specific: database, `APP_HOST`, log level |
+| Process ENV | production | The same keys, set by the host (CapRover, systemd) |
+| Rails credentials | every environment, one encrypted file | Shared secrets and config that do not change with the environment: OAuth client IDs, API tokens |
+
+```bash
+cp .env.example .env          # bin/setup does this when .env is missing
+bin/rails credentials:edit    # layout in config/credentials.example.yml
+```
+
+Read credentials through `AppConfig.credential(:google, :client_id)`. Read host and database through ENV / `AppConfig.app_host`. Tests inject credentials with `AppConfig.with_overrides` and never open the real credentials file.
+
+`.env` is gitignored. `.env.example` and `config/credentials.example.yml` are committed. `config/master.key` is gitignored; production sets `RAILS_MASTER_KEY`.
 
 ## Existing apps
 

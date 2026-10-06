@@ -1,18 +1,15 @@
 # frozen_string_literal: true
 
 add_gem "rails-i18n"
-add_gem "dotenv", group: %i[development test]
 
 copy_forced "app/lib/app_log.rb"
 copy_forced "app/lib/app_config.rb"
-copy_forced ".env.example"
 template_forced "AGENTS.md.tt", "AGENTS.md"
 template_forced "config/database.yml.tt", "config/database.yml"
 copy_forced "config/cache.yml"
 copy_forced "config/cable.yml"
 
 if File.exist?(".gitignore")
-  insert_unless_present ".gitignore", "!/.env.example\n"
   insert_unless_present ".gitignore", "/.gitlock\n"
   insert_unless_present ".gitignore", "/openspec/\n"
 end
